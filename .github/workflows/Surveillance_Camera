@@ -1,0 +1,23 @@
+#Valvontakamera
+
+import datetime
+import RPi.GPIO as GPIO
+from picamera import PiCamera
+import time
+
+motion_pin = 16
+
+camera = PiCamera()
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(motion_pin, GPIO.IN)
+
+# while True:
+
+    aika = (time.strftime("%H:%M:%S"))
+
+    if(GPIO.input(motion_pin) == 1):
+        camera.start_preview()
+        time.sleep(3)
+        camera.capture("/home/pi/Pictures/" + aika +".jpg")
+        camera.stop_preview()
