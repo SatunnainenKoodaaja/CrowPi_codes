@@ -1,0 +1,64 @@
+#Mittaa etäisyyden ja antaa mittausten keskiarvon erilliselle lcd näytölle
+import RPi.GPIO as GPIO
+import time
+import Adafruit_CharLCD as LCD
+
+
+
+GPIO.setmode(GPIO.BCM)
+
+TRIG = 16
+ECHO = 12
+
+lcd_columns = 16
+lcd_rows    = 2
+
+lcd = LCD.Adafruit_CharLCDBackpack(address=0x21)
+
+lcd.set_backlight(0)
+lcd.message('Waiting For \nSensor To Settle')
+time.sleep(2)
+
+GPIO.setup(TRIG,GPIO.OUT)
+GPIO.setup(ECHO,GPIO.IN)
+
+lcd.clear()
+GPIO.output(TRIG, False)
+lcd.message('Distance Measure\nment In Progress')
+time.sleep(2)
+
+sum = 0
+
+ #kuinka saada keskiarvo mittauksista? 10 mittauksen keskiarvo
+for i in range (1, 11):
+    GPIO.output(TRIG, True)
+    time.sleep(1)
+    GPIO.output(TRIG, False)
+
+sum = sum + i
+average = sum/i
+
+while GPIO.input(ECHO)==0:
+    pulse_start = time.time()
+
+while GPIO.input(ECHO)==1:
+    pulse_end = time.time()
+
+pulse_duration = pulse_end - pulse_start
+
+distance = pulse_duration * 17150
+
+distance = round(distance, 2)
+        
+lcd.clear()
+lcd.message("Distance:\n%scm"%distance)
+
+if distance < 15:
+    for i in range(1, 4):
+        lcd.set_backlight(1)
+        time.sleep(0.5)
+        lcd.set_backlight(0)
+        time.sleep(0.5)
+        
+        
+
